@@ -70,36 +70,6 @@ def processMapDataFile(fname):
 
     return json
 
-# (deprecated) Separates the map data into fields and separator symbols.
-def separateTokens(data):
-    # process file to separate tokens
-    s = ""
-    tokens = []
-    inquote = False
-    for i,c in enumerate(data):
-        match c:
-            case '[':
-                tokens.append(c)
-                s = ""
-                continue
-            case ',' | ':' | ']':
-                if inquote:
-                    s += c
-                    continue
-
-                if len(s) > 0:
-                    tokens.append(s)
-                if c != ',' and c != ']':
-                    tokens.append(c)
-                s = ""
-            case '"':
-                s+= '"'
-                inquote = not inquote
-            case _:
-                s += c
-
-    return tokens
-
 # Reads the given map data and separate each tile into it's own string in an array
 def separateTileStrings(data):
 
