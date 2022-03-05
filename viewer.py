@@ -1,5 +1,5 @@
 # Cartoon Cartoon Summer Resort Map Viewer
-# Version 0.1.0 by TheOnlyZac
+# by TheOnlyZac
 
 import sys
 import json
@@ -7,11 +7,12 @@ import re
 import pygame
 import random
 
+(screenWidth, screenHeight) = (416, 320)
+bgcolor = (200, 200, 200)
+
 # Opens map data file and converts the map data to json
-def processMapDataFile(fname):
-    # open map data file
-    infile = open(fname, "r")
-    data = infile.read()
+def processMapDataFile(data):
+    # remove all newlines from file
     data = data.replace("\n", "")
 
     # swap []s and {}s
@@ -70,6 +71,7 @@ def processMapDataFile(fname):
 
     return json
 
+
 # Reads the given map data and separate each tile into it's own string in an array
 def separateTileStrings(data):
 
@@ -93,46 +95,25 @@ def separateTileStrings(data):
     
     return tiles
 
+
 # Reads each tile string in the given data and convert it to a dict using json.loads
 def jsonLoadTileData(data):
     tiles = []
     for tile in data:
-        tiles.append(json.loads(tile.__str__()))
+        try:
+            tiles.append(json.loads(tile.__str__()))
+        except:
+            continue
 
     return tiles
 
-
-def main():
-    print("Cartoon Cartoon Summer Resort Map Viewer\nby TheOnlyZac\n")
-    argc = len(sys.argv)
-    argv = sys.argv
-
-    # Ensure a file was passed as an argument
-    if (argc < 2):
-        print("Usage: parseDict.py [filename]")
-        return
-    
-    # Open and map data file
-    print("Processing map data...")
-    processedData = processMapDataFile(sys.argv[1])
-    tileDataStrings = separateTileStrings(processedData)
-    tiles = jsonLoadTileData(tileDataStrings)
-
-    print("Done.\n")
-
-    # Init pygame
-    print("Initializing pygame...")
-    (screenWidth, screenHeight) = (416, 320)
-    bgcolor = (255, 255, 255)
-    screen = pygame.display.set_mode((screenWidth, screenHeight), pygame.SRCALPHA)
-    print("Done.\n")
-
-    print("Rendering map data...")
+def renderTileData(screen, tileData):
     # clear screen
+    bgcolor = (255, 255, 255) # white
     screen.fill(bgcolor)
 
     # draw each tile
-    for tile in tiles:
+    for tile in tileData:
         try:
             (x, y, tileWidth, tileHeight) = (tile["#location"][0], tile["#location"][1],
                                             tile["#width"], tile["#height"])
@@ -158,22 +139,77 @@ def main():
         except:
             continue
 
-    # draw grid over the whole screen
+def openMapFile(filename):
+    # open map data file
+    file = open(filename, "r")
+    processedFile = processMapDataFile(file.read())
+    tileStrings = separateTileStrings(processedFile)
+    tileData = jsonLoadTileData(tileStrings)
+    file.close()
+    return tileData
+
+def main():
+    print("Cartoon Cartoon Summer Resort Map Viewer\nby TheOnlyZac (v0.2.0)\n")
+    argc = len(sys.argv)
+    argv = sys.argv
+    mode = "default"
+
+    # Check if a file was passed as an argument
+    if (argc > 1):
+        mode = "file"
+    
+    # Open map data file
+    mapData = None
+    (col, row) = 1, 1
+    
+    if mode == "default":
+        mapData = openMapFile("maps/episode1/0{}0{}.txt".format(col, row))
+    elif mode == "file":
+        mapData = openMapFile(sys.argv[1])
+
+    # Init pygame
+    screen = pygame.display.set_mode((screenWidth, screenHeight))
     grid = pygame.Surface((screenWidth, screenHeight), pygame.SRCALPHA) # create grid surface with opacity
-    for i in list(range(round(screenWidth/32))): # draw gridlines to surface
-        pygame.draw.line(grid, (0, 0, 0, 64), (32*i, 0), (32*i, screenHeight))
-        for j in list(range(round(screenHeight/32))):
-            pygame.draw.line(grid, (0, 0, 0, 64), (0, 32*j), (screenWidth, 32*j))
-    screen.blit(grid, (0,0)) # draw grid surface to screen
-            
-    pygame.display.flip()
-    print("Done.\n")
 
     running = True
     while running:
+        # clear screen and render the current mapData
+        screen.fill(bgcolor)
+        renderTileData(screen, mapData)
+
+        # draw grid over the whole screen
+        for i in list(range(round(screenWidth/32))): # draw gridlines to surface
+            pygame.draw.line(grid, (0, 0, 0, 64), (32*i, 0), (32*i, screenHeight))
+            for j in list(range(round(screenHeight/32))):
+                pygame.draw.line(grid, (0, 0, 0, 64), (0, 32*j), (screenWidth, 32*j))
+        screen.blit(grid, (0,0)) # draw grid surface to screen
+
+        # flip the display
+        pygame.display.flip()
+
         for event in pygame.event.get():
+            # handle pygame window closed
             if event.type == pygame.QUIT:
                 running = False
+            
+            # handle keyboard input
+            if event.type == pygame.KEYDOWN:
+                (oldCol, oldRow) = (col, row)
+                match event.key:
+                    case pygame.K_LEFT:
+                        if col > 1: col -= 1
+                    case pygame.K_RIGHT:
+                        if col < 6: col += 1
+                    case pygame.K_UP:
+                        if row > 1: row -= 1
+                    case pygame.K_DOWN:
+                        if row < 6: row += 1
+                    case pygame.K_g:
+                        showGrid = not showGrid
+
+                # open new map data file if default mode and col or row changed
+                if mode == "default" and (col, row) != (oldCol, oldRow):
+                    mapData = openMapFile("maps/episode1/0{}0{}.txt".format(col, row))
     
     print("We hope you enjoyed your stay!")
     return
