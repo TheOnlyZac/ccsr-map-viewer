@@ -123,6 +123,10 @@ def renderTileData(screen, tileData):
             (x, y, tileWidth, tileHeight) = (tile["#location"][0], tile["#location"][1],
                                             tile["#width"], tile["#height"])
 
+            # skip tile if it is invisible when the game starts
+            if tile["#data"]["#item"]["#visi"]["#visiObj"] != "" or tile["#data"]["#item"]["#visi"]["#visiAct"] != "":
+                continue
+
             s = pygame.Surface((tileWidth, tileHeight), pygame.SRCALPHA)
 
             sprite = None
