@@ -172,6 +172,7 @@ def main():
     # Init pygame
     screen = pygame.display.set_mode((screenWidth, screenHeight))
     grid = pygame.Surface((screenWidth, screenHeight), pygame.SRCALPHA) # create grid surface with opacity
+    showGrid = False
 
     running = True
     while running:
@@ -180,11 +181,12 @@ def main():
         renderTileData(screen, mapData)
 
         # draw grid over the whole screen
-        for i in list(range(round(screenWidth/32))): # draw gridlines to surface
-            pygame.draw.line(grid, (0, 0, 0, 64), (32*i, 0), (32*i, screenHeight))
-            for j in list(range(round(screenHeight/32))):
-                pygame.draw.line(grid, (0, 0, 0, 64), (0, 32*j), (screenWidth, 32*j))
-        screen.blit(grid, (0,0)) # draw grid surface to screen
+        if showGrid:
+            for i in list(range(round(screenWidth/32))): # draw gridlines to surface
+                pygame.draw.line(grid, (0, 0, 0, 64), (32*i, 0), (32*i, screenHeight))
+                for j in list(range(round(screenHeight/32))):
+                    pygame.draw.line(grid, (0, 0, 0, 64), (0, 32*j), (screenWidth, 32*j))
+            screen.blit(grid, (0,0)) # draw grid surface to screen
 
         # flip the display
         pygame.display.flip()
