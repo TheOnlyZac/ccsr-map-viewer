@@ -127,7 +127,7 @@ def renderTileData(screen, tileData):
             if tile["#data"]["#item"]["#visi"]["#visiObj"] != "" or tile["#data"]["#item"]["#visi"]["#visiAct"] != "":
                 continue
 
-            s = pygame.Surface((tileWidth, tileHeight), pygame.SRCALPHA)
+            spriteSurface = pygame.Surface((tileWidth, tileHeight), pygame.SRCALPHA)
 
             sprite = None
             try:
@@ -138,24 +138,26 @@ def renderTileData(screen, tileData):
 
             # if sprite is missing, draw red box and continue
             if sprite == None:
-                rect = (16*x, 16*y, tileWidth, tileHeight)
-                color = (255, 32, 32) # red
-                pygame.draw.rect(s, color, rect)
+                print("yo")
+                rect = (0, 0, tileWidth, tileHeight)
+                color = (255, 32, 32, 255) # red
+                pygame.draw.rect(spriteSurface, color, rect)
+                screen.blit(spriteSurface, (16*x, 16*y))
                 continue
             
-            # draw sprite
+            # draw sprite as tile
             if "tile" in tile["#member"] or "Tile" in tile["#member"]:
                 for i in list(range(round(tileWidth/32))):
                     for j in list(range(round(tileHeight/32))):
-                            s.blit(sprite, (i*32, j*32))
-                convertWhiteToAlpha(s)
-                screen.blit(s, (16*x, 16*y))
+                            spriteSurface.blit(sprite, (i*32, j*32))
+                convertWhiteToAlpha(spriteSurface)
+                screen.blit(spriteSurface, (16*x, 16*y))
                 continue
-
-            s.blit(sprite, (0, 0))
-            convertWhiteToAlpha(s)
-
-            screen.blit(s, (16*x - 16, 16*y - 16))
+            
+            # draw sprite as block
+            spriteSurface.blit(sprite, (0, 0))
+            convertWhiteToAlpha(spriteSurface)
+            screen.blit(spriteSurface, (16*x - 16, 16*y - 16))
             
         except:
             continue
