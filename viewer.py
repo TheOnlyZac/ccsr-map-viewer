@@ -4,13 +4,19 @@
 import sys
 import json
 import re
-import pygame
+try:
+    import os
+    os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+    import pygame
+except:
+    print("Pygame not found. Please install it with 'pip insall pygame'.")
+    sys.exit()
 
 (screenWidth, screenHeight) = (416, 320)
 bgcolor = (200, 200, 200)
 
 # Opens map data file and converts the map data to json
-def processMapDataFile(data):
+def processMapData(data):
     # remove all newlines from file
     data = data.replace("\n", "")
 
@@ -18,51 +24,51 @@ def processMapDataFile(data):
     data = data.replace('[', '{')
     data = data.replace(']', '}')
 
-    # iterate over data to convert {}s back to []s for the necessary fields
+    # iterate over data to convert {}s back to []s for list attributes
     s = ""
     depth = 0
-    seeking = False
-    instring = False
-    for i,c in enumerate(data):
-        if c == ',':
+    inList = False
+    inString = False
+    for i,char in enumerate(data):
+        if char == ',':
             s = ""
             continue
 
-        if c == '"':
-            instring = not instring
+        if char == '"':
+            inString = not inString
 
-        if seeking and s == "#COND:" and not c in [' ', '{']:
-            seeking = False
+        if inList and s == "#COND:" and not char in [' ', '{']:
+            inList = False
 
-        s += c
-        if not instring:
+        s += char
+        if not inString:
             s = s.strip()
 
-        if seeking:
-            if c == '{':
+        if inList:
+            if char == '{':
                 if depth == 0:
                     data = data[:i] + '[' + data[i + 1:]
                 depth += 1
-            if c == '}':
+            if char == '}':
                 depth -= 1
                 if depth == 0:
                     data = data[:i] + ']' + data[i + 1:]
-                    seeking = False
+                    inList = False
         else:
             if s in ["#location", "#COND", "#message"]:
                 depth = 0
-                seeking = True
+                inList = True
 
     # iterate over file again and remove all extra whitespace
     json = ""
-    instring = False
-    for i,c in enumerate(data):
-        json += c
+    inString = False
+    for i,char in enumerate(data):
+        json += char
 
-        if c == '"':
-            instring = not instring
+        if char == '"':
+            inString = not inString
 
-        if not instring:
+        if not inString:
             json = json.strip()
     
     # use regex to add quotes around all necessary fields (all of which are prefixed with #)
@@ -79,18 +85,17 @@ def separateTileStrings(data):
     s = ""
     depth = 0
     tiles = []
-    for i,c in enumerate(data):
-        if depth == 0 and c == ',':
+    for char in data:
+        if depth == 0 and char == ',':
             continue
-        s += c
-        match c:
-            case '{':
-                depth += 1
-            case '}':
-                depth -= 1
-                if depth == 0:
-                    tiles.append(s)
-                    s = ""
+        s += char
+        if char == '{':
+            depth += 1
+        elif char == '}':
+            depth -= 1
+            if depth == 0:
+                tiles.append(s)
+                s = ""
     
     return tiles
 
@@ -106,13 +111,15 @@ def jsonLoadTileData(data):
 
     return tiles
 
+
 def convertWhiteToAlpha(surface):
     # replace white pixels with transparent
     arr = pygame.PixelArray(surface)
     arr.replace((255, 255, 255), (255, 255, 255, 0))
     del arr
 
-def renderTileData(screen, tileData):
+
+def drawTiles(screen, tileData):
     # clear screen
     bgcolor = (255, 255, 255) # white
     screen.fill(bgcolor)
@@ -162,17 +169,19 @@ def renderTileData(screen, tileData):
         except:
             continue
 
+
 def openMapFile(filename):
     # open map data file
     file = open(filename, "r")
-    processedFile = processMapDataFile(file.read())
+    processedFile = processMapData(file.read())
     tileStrings = separateTileStrings(processedFile)
     tileData = jsonLoadTileData(tileStrings)
     file.close()
     return tileData
 
+
 def main():
-    print("Cartoon Cartoon Summer Resort Map Viewer\nby TheOnlyZac (v0.3.1)\n")
+    print("\nCartoon Cartoon Summer Resort Map Viewer\nby TheOnlyZac (v0.4.0)\n")
     argc = len(sys.argv)
     argv = sys.argv
     mode = "default"
@@ -182,33 +191,34 @@ def main():
         mode = "file"
     
     # Open map data file
-    mapData = None
+    tileData = None
     (col, row) = 1, 6
     
     if mode == "default":
-        mapData = openMapFile("maps/episode1/0{}0{}.txt".format(col, row))
+        tileData = openMapFile("maps/episode1/0{}0{}.txt".format(col, row))
     elif mode == "file":
-        mapData = openMapFile(sys.argv[1])
+        tileData = openMapFile(sys.argv[1])
 
     # Init pygame
     screen = pygame.display.set_mode((screenWidth, screenHeight))
     pygame.display.set_caption("Cartoon Cartoon Summer Resort Map Viewer")
 
-    icon = pygame.Surface((32, 32))
+    icon = pygame.Surface((32, 32), pygame.SRCALPHA)
     icon.blit(pygame.image.load("tiles/gus.png"), (0, 0))
+    convertWhiteToAlpha(icon)
     pygame.display.set_icon(icon)
 
     grid = pygame.Surface((screenWidth, screenHeight), pygame.SRCALPHA) # create grid surface with opacity
     showGrid = False
 
-    # main render loop
+    # Main render loop
     running = True
     while running:
-        # clear screen and render the current mapData
+        # clear screen and render the current tileData
         screen.fill(bgcolor)
-        renderTileData(screen, mapData)
+        drawTiles(screen, tileData)
 
-        # draw grid over the whole screen
+        # draw grid over the screen if showGrid is true
         if showGrid:
             for i in list(range(round(screenWidth/32))): # draw gridlines to surface
                 pygame.draw.line(grid, (0, 0, 0, 64), (32*i, 0), (32*i, screenHeight))
@@ -219,6 +229,7 @@ def main():
         # flip the display
         pygame.display.flip()
 
+        # handle pygame events
         for event in pygame.event.get():
             # handle pygame window closed
             if event.type == pygame.QUIT:
@@ -227,21 +238,25 @@ def main():
             # handle keyboard input
             if event.type == pygame.KEYDOWN:
                 (oldCol, oldRow) = (col, row)
-                match event.key:
-                    case pygame.K_LEFT:
-                        if col > 1: col -= 1
-                    case pygame.K_RIGHT:
-                        if col < 6: col += 1
-                    case pygame.K_UP:
-                        if row > 1: row -= 1
-                    case pygame.K_DOWN:
-                        if row < 6: row += 1
-                    case pygame.K_g:
-                        showGrid = not showGrid
+
+                if event.key == pygame.K_LEFT:
+                    if col > 1: col -= 1
+                
+                elif event.key == pygame.K_RIGHT:
+                    if col < 6: col += 1
+                
+                elif event.key == pygame.K_UP:
+                    if row > 1: row -= 1
+                
+                elif event.key == pygame.K_DOWN:
+                    if row < 6: row += 1
+                
+                elif event.key == pygame.K_g:
+                    showGrid = not showGrid
 
                 # open new map data file if default mode and col or row changed
                 if mode == "default" and (col, row) != (oldCol, oldRow):
-                    mapData = openMapFile("maps/episode1/0{}0{}.txt".format(col, row))
+                    tileData = openMapFile("maps/episode1/0{}0{}.txt".format(col, row))
     
     print("We hope you enjoyed your stay!")
     return

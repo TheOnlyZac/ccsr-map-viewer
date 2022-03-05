@@ -5,7 +5,7 @@
 This is a work-in-progress map viewer for the Cartoon Cartoon Summer Resort series. The games were made with Adobe Shockwave and published on Cartoon Network's website in the summer of 2000.
 
 ## Instructions
-To run the script, you will need Python 3.10 or higher (available [here](https://www.python.org/downloads/)) and pygame (install with <code>pip install pygame</code>).
+To run the script, you will need Python 3.8 or higher (available [here](https://www.python.org/downloads/)) and pygame (install with <code>pip install pygame</code>).
 
 Run the script <code>viewer.py</code> to start the viewer. Use the **arrow keys** to move between maps, and press **G** to show/hide the tile grid.
 
