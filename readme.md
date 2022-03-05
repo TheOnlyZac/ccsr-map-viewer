@@ -9,3 +9,5 @@ You can also pass the name of a file as a commandline argument to open that spec
 
 ## Notes
 The map data files from Episode 1 can be found in the <code>maps/episode1</code> folder. It will also work with maps from other episodes (if you have them), but it currently only has the tileset from Episode 1.
+
+You may need to install pygame to run the script. Assuming you already have python, just run <code>pip install pygame</code>.

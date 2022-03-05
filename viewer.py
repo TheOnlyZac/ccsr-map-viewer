@@ -5,7 +5,6 @@ import sys
 import json
 import re
 import pygame
-import random
 
 (screenWidth, screenHeight) = (416, 320)
 bgcolor = (200, 200, 200)
