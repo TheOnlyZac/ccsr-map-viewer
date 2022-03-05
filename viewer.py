@@ -1,8 +1,9 @@
-from sqlite3 import SQLITE_CREATE_TEMP_VIEW
+# Cartoon Cartoon Summer Resort Map Viewer
+# Version 0.1.0 by TheOnlyZac
+
 import sys
 import json
 import re
-import pprint
 import pygame
 import random
 
