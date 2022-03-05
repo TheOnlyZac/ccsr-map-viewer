@@ -162,7 +162,7 @@ def main():
     
     # Open map data file
     mapData = None
-    (col, row) = 1, 1
+    (col, row) = 1, 6
     
     if mode == "default":
         mapData = openMapFile("maps/episode1/0{}0{}.txt".format(col, row))
