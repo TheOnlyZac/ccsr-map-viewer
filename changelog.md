@@ -1,5 +1,7 @@
 # Changelog
-## v0.2.1
+## v0.3.0
+March 5, 2022
+* Sprites now render with transparency
 * Added window title and icon
 
 ## v0.2.0

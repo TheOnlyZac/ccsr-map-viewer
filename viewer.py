@@ -106,6 +106,12 @@ def jsonLoadTileData(data):
 
     return tiles
 
+def convertWhiteToAlpha(surface):
+    # replace white pixels with transparent
+    arr = pygame.PixelArray(surface)
+    arr.replace((255, 255, 255), (255, 255, 255, 0))
+    del arr
+
 def renderTileData(screen, tileData):
     # clear screen
     bgcolor = (255, 255, 255) # white
@@ -116,9 +122,12 @@ def renderTileData(screen, tileData):
         try:
             (x, y, tileWidth, tileHeight) = (tile["#location"][0], tile["#location"][1],
                                             tile["#width"], tile["#height"])
-            
+
+            s = pygame.Surface((tileWidth, tileHeight), pygame.SRCALPHA)
+
             sprite = None
             try:
+                # load sprite image
                 sprite = pygame.image.load('tiles/episode1/' + tile["#member"] + '.png')
             except:
                 pass
@@ -127,16 +136,23 @@ def renderTileData(screen, tileData):
             if sprite == None:
                 rect = (16*x, 16*y, tileWidth, tileHeight)
                 color = (255, 32, 32) # red
-                pygame.draw.rect(screen, color, rect)
+                pygame.draw.rect(s, color, rect)
                 continue
             
             # draw sprite
             if "tile" in tile["#member"] or "Tile" in tile["#member"]:
                 for i in list(range(round(tileWidth/32))):
                     for j in list(range(round(tileHeight/32))):
-                            screen.blit(sprite, (16*x + i*32, 16*y + j*32))
-            else:
-                screen.blit(sprite, (16*x - 16, 16*y - 16))
+                            s.blit(sprite, (i*32, j*32))
+                convertWhiteToAlpha(s)
+                screen.blit(s, (16*x, 16*y))
+                continue
+
+            s.blit(sprite, (0, 0))
+            convertWhiteToAlpha(s)
+
+            screen.blit(s, (16*x - 16, 16*y - 16))
+            
         except:
             continue
 
