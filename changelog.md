@@ -2,8 +2,9 @@
 ## v0.2.0
 * Use the arrow keys to move between maps
 * Press G to toggle the grid overlay
-* Fixed bad map data in 0106.txt
-* JSON parser will skip a tile if it throws an error
+* Missing sprites render as red boxes
+* JSON parser will skip tiles if they throw an error
+* Fixed some filenames and bad map data in 0106.txt
 
 ## v0.1.0
 * First implementation of map renderer

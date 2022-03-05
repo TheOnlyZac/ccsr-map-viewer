@@ -124,18 +124,20 @@ def renderTileData(screen, tileData):
             except:
                 pass
 
-            rect = (16*x, 16*y, tileWidth, tileHeight)
-            color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-
-            #pygame.draw.rect(screen, color, rect)
+            # if sprite is missing, draw red box and continue
+            if sprite == None:
+                rect = (16*x, 16*y, tileWidth, tileHeight)
+                color = (255, 32, 32) # red
+                pygame.draw.rect(screen, color, rect)
+                continue
             
+            # draw sprite
             if "tile" in tile["#member"] or "Tile" in tile["#member"]:
                 for i in list(range(round(tileWidth/32))):
                     for j in list(range(round(tileHeight/32))):
                             screen.blit(sprite, (16*x + i*32, 16*y + j*32))
             else:
                 screen.blit(sprite, (16*x - 16, 16*y - 16))
-                
         except:
             continue
 
