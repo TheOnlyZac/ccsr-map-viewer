@@ -170,7 +170,7 @@ def openMapFile(filename):
     return tileData
 
 def main():
-    print("Cartoon Cartoon Summer Resort Map Viewer\nby TheOnlyZac (v0.2.1)\n")
+    print("Cartoon Cartoon Summer Resort Map Viewer\nby TheOnlyZac (v0.3.0)\n")
     argc = len(sys.argv)
     argv = sys.argv
     mode = "default"
