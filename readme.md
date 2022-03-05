@@ -1,5 +1,7 @@
 # Cartoon Cartoon Summer Resort Map Viewer
 
+![A screenshot of the map viewer](./screenshot.png)
+
 This is a work-in-progress map viewer for the Cartoon Cartoon Summer Resort series. The games were made with Adobe Shockwave and published in the summer of 2000 on Cartoon Network's website.
 
 ## Instructions

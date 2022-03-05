@@ -1,5 +1,9 @@
 # Changelog
+## v0.2.1
+* Added window title and icon
+
 ## v0.2.0
+March 5, 2022
 * Use the arrow keys to move between maps
 * Press G to toggle the grid overlay
 * Missing sprites render as red boxes
@@ -7,5 +11,6 @@
 * Fixed some filenames and bad map data in 0106.txt
 
 ## v0.1.0
+March 4, 2022
 * First implementation of map renderer
 * Maps 0106, 0106b, 0306, 0502, and 0506b throw an error when parsing tile JSON 

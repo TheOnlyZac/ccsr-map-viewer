@@ -150,7 +150,7 @@ def openMapFile(filename):
     return tileData
 
 def main():
-    print("Cartoon Cartoon Summer Resort Map Viewer\nby TheOnlyZac (v0.2.0)\n")
+    print("Cartoon Cartoon Summer Resort Map Viewer\nby TheOnlyZac (v0.2.1)\n")
     argc = len(sys.argv)
     argv = sys.argv
     mode = "default"
@@ -170,9 +170,16 @@ def main():
 
     # Init pygame
     screen = pygame.display.set_mode((screenWidth, screenHeight))
+    pygame.display.set_caption("Cartoon Cartoon Summer Resort Map Viewer")
+
+    icon = pygame.Surface((32, 32))
+    icon.blit(pygame.image.load("tiles/gus.png"), (0, 0))
+    pygame.display.set_icon(icon)
+
     grid = pygame.Surface((screenWidth, screenHeight), pygame.SRCALPHA) # create grid surface with opacity
     showGrid = False
 
+    # main render loop
     running = True
     while running:
         # clear screen and render the current mapData
