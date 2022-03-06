@@ -191,13 +191,15 @@ def main():
         mode = "file"
     
     # Open map data file
-    tileData = None
+    mapFile = None
     (col, row) = 1, 6
     
     if mode == "default":
-        tileData = openMapFile("maps/episode1/0{}0{}.txt".format(col, row))
+        mapFile = "maps/episode1/0{}0{}.txt".format(col, row)
     elif mode == "file":
-        tileData = openMapFile(sys.argv[1])
+        mapFile = sys.argv[1]
+
+    tileData = openMapFile(mapFile)
 
     # Init pygame
     screen = pygame.display.set_mode((screenWidth, screenHeight))
@@ -210,6 +212,9 @@ def main():
 
     grid = pygame.Surface((screenWidth, screenHeight), pygame.SRCALPHA) # create grid surface with opacity
     showGrid = False
+
+    pygame.mixer.init()
+    snapSound = pygame.mixer.Sound("resources/snap.ogg")
 
     # Main render loop
     running = True
@@ -239,24 +244,44 @@ def main():
             if event.type == pygame.KEYDOWN:
                 (oldCol, oldRow) = (col, row)
 
+                # ARROW KEYS: move between maps
                 if event.key == pygame.K_LEFT:
                     if col > 1: col -= 1
-                
+                # go right
                 elif event.key == pygame.K_RIGHT:
                     if col < 6: col += 1
-                
+                # go up
                 elif event.key == pygame.K_UP:
                     if row > 1: row -= 1
-                
+                # go down
                 elif event.key == pygame.K_DOWN:
                     if row < 6: row += 1
-                
+
+                # G: show/hide grid
                 elif event.key == pygame.K_g:
                     showGrid = not showGrid
 
-                # open new map data file if default mode and col or row changed
+                # C: capture snapshot of current map
+                elif event.key == pygame.K_c:
+                    # play snapshot sound
+                    pygame.mixer.Sound.play(snapSound)
+
+                    # make sure snaps folder exists
+                    if not os.path.exists("./snaps"):
+                        os.mkdir("snaps")
+                    mapName = os.path.splitext(os.path.basename(mapFile))[0]
+                    
+                    # save each snap of the same map with an increasing suffix
+                    i = 1
+                    while os.path.exists("./snaps/{}_{}.png".format(mapName, i)):
+                        i+= 1
+
+                    pygame.image.save(screen, "snaps/{}_{}.png".format(mapName, i))
+
+                # open new map data file if the col or row changed
                 if mode == "default" and (col, row) != (oldCol, oldRow):
-                    tileData = openMapFile("maps/episode1/0{}0{}.txt".format(col, row))
+                    mapFile = "maps/episode1/0{}0{}.txt".format(col, row)
+                    tileData = openMapFile(mapFile)
     
     print("We hope you enjoyed your stay!")
     return

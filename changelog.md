@@ -1,5 +1,6 @@
 # Changelog
-## v0.4
+## v0.
+* Press C to capture a snapshot of the map
 * Viewer now works Windows 7 using Python 3.8
 * If pygame is not detected it will ask you to install it
 
