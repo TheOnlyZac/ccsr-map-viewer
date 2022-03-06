@@ -5,6 +5,7 @@ by TheOnlyZac
 ## v0.4.0
 March 5 2022
 * Press C to capture a snapshot of the map
+* Press V to show/hide invisible tiles
 * Viewer now works on Windows 7 using Python 3.8
 * If pygame is not detected it will ask you to install it
 

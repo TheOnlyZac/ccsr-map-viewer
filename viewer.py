@@ -119,7 +119,7 @@ def convertWhiteToAlpha(surface):
     del arr
 
 
-def drawTiles(screen, tileData):
+def drawTiles(screen, tileData, renderInvis=False):
     # clear screen
     bgcolor = (255, 255, 255) # white
     screen.fill(bgcolor)
@@ -131,7 +131,7 @@ def drawTiles(screen, tileData):
                                             tile["#width"], tile["#height"])
 
             # skip tile if it is invisible when the game starts
-            if tile["#data"]["#item"]["#visi"]["#visiObj"] != "" or tile["#data"]["#item"]["#visi"]["#visiAct"] != "":
+            if (not renderInvis) and (tile["#data"]["#item"]["#visi"]["#visiObj"] != "" or tile["#data"]["#item"]["#visi"]["#visiAct"] != ""):
                 continue
 
             spriteSurface = pygame.Surface((tileWidth, tileHeight), pygame.SRCALPHA)
@@ -145,7 +145,6 @@ def drawTiles(screen, tileData):
 
             # if sprite is missing, draw red box and continue
             if sprite == None:
-                print("yo")
                 rect = (0, 0, tileWidth, tileHeight)
                 color = (255, 32, 32, 255) # red
                 pygame.draw.rect(spriteSurface, color, rect)
@@ -185,6 +184,7 @@ def main():
     argc = len(sys.argv)
     argv = sys.argv
     mode = "default"
+    showInvis = False
 
     # Check if a file was passed as an argument
     if (argc > 1):
@@ -221,7 +221,7 @@ def main():
     while running:
         # clear screen and render the current tileData
         screen.fill(bgcolor)
-        drawTiles(screen, tileData)
+        drawTiles(screen, tileData, showInvis)
 
         # draw grid over the screen if showGrid is true
         if showGrid:
@@ -277,6 +277,10 @@ def main():
                         i+= 1
 
                     pygame.image.save(screen, "snaps/{}_{}.png".format(mapName, i))
+                
+                # V: toggle showing invisible tiles
+                elif event.key == pygame.K_v:
+                    showInvis = not showInvis
 
                 # open new map data file if the col or row changed
                 if mode == "default" and (col, row) != (oldCol, oldRow):
