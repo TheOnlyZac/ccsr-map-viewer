@@ -4,7 +4,8 @@ by TheOnlyZac
 
 ## v0.5.0
 March 7 2022
-* Added episode 4 maps and tiles
+* Added episodes 2 maps
+* Added episode 4 maps
 * Added episode select when you start the script
 
 ## v0.4.0
