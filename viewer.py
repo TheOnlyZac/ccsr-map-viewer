@@ -193,7 +193,7 @@ def main():
         print("Loading file: {}".format(sys.argv[1]))
         mode = "file"
     else:
-        print("Which episode would you like? \n [1] Episode 1: Pool Problems\n [2] Episode 2: Tennis Menace\n [3] Episode 3: Vivian vs. The Volcano\n [4] Episode 4: Disco Dilemma")
+        print("Choose an episode. \n [1] Episode 1: Pool Problems\n [2] Episode 2: Tennis Menace\n [3] Episode 3: Vivian vs. The Volcano\n [4] Episode 4: Disco Dilemma")
         c = "0"
         while not int(c) in [1, 2, 3, 4]:
             c = sys.stdin.read(1)
