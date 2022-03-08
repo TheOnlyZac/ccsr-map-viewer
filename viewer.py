@@ -2,10 +2,10 @@
 # by TheOnlyZac
 
 import sys
+import os
 import json
 import re
 try:
-    import os
     os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
     import pygame
 except:
@@ -134,6 +134,10 @@ def drawTiles(screen, tileData, episode, renderInvis=False):
             if (not renderInvis) and (tile["#data"]["#item"]["#visi"]["#visiObj"] != "" or tile["#data"]["#item"]["#visi"]["#visiAct"] != ""):
                 continue
 
+            # skip tile if it has an invis condition and rendering invis objects
+            if (renderInvis) and (tile["#data"]["#item"]["#visi"]["#inviObj"] != "" or tile["#data"]["#item"]["#visi"]["#inviAct"] != ""):
+                continue
+
             spriteSurface = pygame.Surface((tileWidth, tileHeight), pygame.SRCALPHA)
 
             sprite = None
@@ -225,6 +229,8 @@ def main():
 
     pygame.mixer.init()
     snapSound = pygame.mixer.Sound("resources/snap.ogg")
+    discoverSound = pygame.mixer.Sound("resources/discover.ogg")
+    bumpSound = pygame.mixer.Sound("resources/bump.ogg")
 
     # Main render loop
     running = True
@@ -252,9 +258,10 @@ def main():
             
             # handle keyboard input
             if event.type == pygame.KEYDOWN:
-                (oldCol, oldRow) = (col, row)
+                (oldCol, oldRow, oldEpisode) = (col, row, episode)
 
                 # ARROW KEYS: move between maps
+                # go left
                 if event.key == pygame.K_LEFT:
                     col -= 1
                 # go right
@@ -266,6 +273,10 @@ def main():
                 # go down
                 elif event.key == pygame.K_DOWN:
                     row += 1
+                
+                # 1/2/3/4: load episodes
+                if event.key == pygame.K_1:
+                    episode = 1
 
                 # G: show/hide grid
                 elif event.key == pygame.K_g:
@@ -290,14 +301,20 @@ def main():
                 
                 # V: toggle showing invisible tiles
                 elif event.key == pygame.K_v:
+                    # toggle show invis objects flag
                     showInvis = not showInvis
+                    
+                    # play discover sound
+                    if showInvis:
+                        pygame.mixer.Sound.play(discoverSound)
 
                 # open new map data file if the col or row changed
-                if mode == "default" and (col, row) != (oldCol, oldRow):
+                if mode == "default" and (col, row, episode) != (oldCol, oldRow, oldEpisode):
                     mapFile = "maps/episode{}/0{}0{}.txt".format(episode, col, row)
                     if os.path.exists(mapFile):
                         tileData = openMapFile(mapFile)
                     else:
+                        pygame.mixer.Sound.play(bumpSound)
                         (col, row) = (oldCol, oldRow)
     
     print("We hope you enjoyed your stay!")

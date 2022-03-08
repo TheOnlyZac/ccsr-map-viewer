@@ -6,6 +6,8 @@ by TheOnlyZac
 March 7 2022
 * Added episodes 2, 3, and 4 maps
 * Added episode select when you start the script
+* Added sound effect for showing invisible objects
+* Added thud sound for map loading errors
 
 ## v0.4.0
 March 5 2022
