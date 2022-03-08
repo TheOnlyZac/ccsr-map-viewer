@@ -2,7 +2,7 @@
 
 ![A screenshot of the map viewer](./resources/screenshot.png)
 
-This is a work-in-progress map viewer for the Cartoon Cartoon Summer Resort series. The games were made with Adobe Shockwave and published on Cartoon Network's website in the summer of 2000. It currently supports all the maps from Episode 1, but some sprites are not positioned correctly.
+This is a work-in-progress map viewer for the Cartoon Cartoon Summer Resort series. The games were made with Adobe Shockwave and published on Cartoon Network's website in the summer of 2000.
 
 ## Instructions
 To run the script, you will need Python 3.8 or higher (available [here](https://www.python.org/downloads/)) and pygame (install with <code>pip install pygame</code>).
