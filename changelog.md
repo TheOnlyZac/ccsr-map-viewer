@@ -2,6 +2,11 @@
 Cartoon Cartoon Summer Resort Map Viewer
 by TheOnlyZac
 
+## v0.5.0
+March 7 2022
+* Added episode 4 maps and tiles
+* Added episode select when you start the script
+
 ## v0.4.0
 March 5 2022
 * Press C to capture a snapshot of the map

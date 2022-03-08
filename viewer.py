@@ -119,7 +119,7 @@ def convertWhiteToAlpha(surface):
     del arr
 
 
-def drawTiles(screen, tileData, renderInvis=False):
+def drawTiles(screen, tileData, episode, renderInvis=False):
     # clear screen
     bgcolor = (255, 255, 255) # white
     screen.fill(bgcolor)
@@ -139,7 +139,7 @@ def drawTiles(screen, tileData, renderInvis=False):
             sprite = None
             try:
                 # load sprite image
-                sprite = pygame.image.load('tiles/episode1/' + tile["#member"] + '.png')
+                sprite = pygame.image.load('tiles/episode{}/{}.png'.format(episode, tile["#member"]))
             except:
                 pass
 
@@ -183,19 +183,29 @@ def main():
     print("\nCartoon Cartoon Summer Resort Map Viewer\nby TheOnlyZac (v0.4.0)\n")
     argc = len(sys.argv)
     argv = sys.argv
+
     mode = "default"
+    episode = 1
     showInvis = False
 
     # Check if a file was passed as an argument
     if (argc > 1):
+        print("Loading file: {}".format(sys.argv[1]))
         mode = "file"
+    else:
+        print("Which episode would you like? \n [1] Episode 1: Pool Problems\n [2] Episode 2: Tennis Menace\n [3] Episode 3: Vivian vs. The Volcano\n [4] Episode 4: Disco Dilemma")
+        c = "0"
+        while not int(c) in [1, 2, 3, 4]:
+            c = sys.stdin.read(1)
+        episode = int(c)
+        print("Loading Episode {}...".format(episode))
     
     # Open map data file
     mapFile = None
     (col, row) = 1, 6
     
     if mode == "default":
-        mapFile = "maps/episode1/0{}0{}.txt".format(col, row)
+        mapFile = "maps/episode{}/0{}0{}.txt".format(episode, col, row)
     elif mode == "file":
         mapFile = sys.argv[1]
 
@@ -221,7 +231,7 @@ def main():
     while running:
         # clear screen and render the current tileData
         screen.fill(bgcolor)
-        drawTiles(screen, tileData, showInvis)
+        drawTiles(screen, tileData, episode, showInvis)
 
         # draw grid over the screen if showGrid is true
         if showGrid:
@@ -246,16 +256,16 @@ def main():
 
                 # ARROW KEYS: move between maps
                 if event.key == pygame.K_LEFT:
-                    if col > 1: col -= 1
+                    col -= 1
                 # go right
                 elif event.key == pygame.K_RIGHT:
-                    if col < 6: col += 1
+                    col += 1
                 # go up
                 elif event.key == pygame.K_UP:
-                    if row > 1: row -= 1
+                    row -= 1
                 # go down
                 elif event.key == pygame.K_DOWN:
-                    if row < 6: row += 1
+                    row += 1
 
                 # G: show/hide grid
                 elif event.key == pygame.K_g:
@@ -284,8 +294,11 @@ def main():
 
                 # open new map data file if the col or row changed
                 if mode == "default" and (col, row) != (oldCol, oldRow):
-                    mapFile = "maps/episode1/0{}0{}.txt".format(col, row)
-                    tileData = openMapFile(mapFile)
+                    mapFile = "maps/episode{}/0{}0{}.txt".format(episode, col, row)
+                    if os.path.exists(mapFile):
+                        tileData = openMapFile(mapFile)
+                    else:
+                        (col, row) = (oldCol, oldRow)
     
     print("We hope you enjoyed your stay!")
     return
