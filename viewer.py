@@ -231,6 +231,7 @@ def main():
     snapSound = pygame.mixer.Sound("resources/snap.ogg")
     discoverSound = pygame.mixer.Sound("resources/discover.ogg")
     bumpSound = pygame.mixer.Sound("resources/bump.ogg")
+    chimesSound = pygame.mixer.Sound("resources/chimes.ogg")
 
     # Main render loop
     running = True
@@ -277,6 +278,12 @@ def main():
                 # 1/2/3/4: load episodes
                 if event.key == pygame.K_1:
                     episode = 1
+                if event.key == pygame.K_2:
+                    episode = 2
+                if event.key == pygame.K_3:
+                    episode = 3
+                if event.key == pygame.K_4:
+                    episode = 4
 
                 # G: show/hide grid
                 elif event.key == pygame.K_g:
@@ -310,12 +317,19 @@ def main():
 
                 # open new map data file if the col or row changed
                 if mode == "default" and (col, row, episode) != (oldCol, oldRow, oldEpisode):
-                    mapFile = "maps/episode{}/0{}0{}.txt".format(episode, col, row)
-                    if os.path.exists(mapFile):
+                    newMapFile = "maps/episode{}/0{}0{}.txt".format(episode, col, row)
+                    if os.path.exists(newMapFile):
+                        # play chimes sound if episode changed
+                        if episode != oldEpisode:
+                            pygame.mixer.Sound.play(chimesSound)
+
+                        # load new map file
+                        mapFile = newMapFile
                         tileData = openMapFile(mapFile)
                     else:
+                        # play bump sound and undo changes if error loading file
                         pygame.mixer.Sound.play(bumpSound)
-                        (col, row) = (oldCol, oldRow)
+                        (col, row, episode) = (oldCol, oldRow, oldEpisode)
     
     print("We hope you enjoyed your stay!")
     return
