@@ -184,7 +184,7 @@ def openMapFile(filename):
 
 
 def main():
-    print("\nCartoon Cartoon Summer Resort Map Viewer\nby TheOnlyZac (v0.4.0)\n")
+    print("\nCartoon Cartoon Summer Resort Map Viewer\nby TheOnlyZac (v0.5.0)\n")
     argc = len(sys.argv)
     argv = sys.argv
 
