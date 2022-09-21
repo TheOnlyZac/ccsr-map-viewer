@@ -235,24 +235,36 @@ def main():
 
     # Main render loop
     running = True
-    while running:
-        # clear screen and render the current tileData
-        screen.fill(bgcolor)
-        drawTiles(screen, tileData, episode, showInvis)
+    doRedraw = True
+    clock = pygame.time.Clock()
 
-        # draw grid over the screen if showGrid is true
-        if showGrid:
-            for i in list(range(round(screenWidth/32))): # draw gridlines to surface
-                pygame.draw.line(grid, (0, 0, 0, 64), (32*i, 0), (32*i, screenHeight))
-                for j in list(range(round(screenHeight/32))):
-                    pygame.draw.line(grid, (0, 0, 0, 64), (0, 32*j), (screenWidth, 32*j))
-            screen.blit(grid, (0,0)) # draw grid surface to screen
+    while running:
+
+        clock.tick(60)
+
+        if doRedraw:
+            # clear screen and render the current tileData
+            screen.fill(bgcolor)
+            drawTiles(screen, tileData, episode, showInvis)
+
+            # draw grid over the screen if showGrid is true
+            if showGrid:
+                for i in list(range(round(screenWidth/32))): # draw gridlines to surface
+                    pygame.draw.line(grid, (0, 0, 0, 64), (32*i, 0), (32*i, screenHeight))
+                    for j in list(range(round(screenHeight/32))):
+                        pygame.draw.line(grid, (0, 0, 0, 64), (0, 32*j), (screenWidth, 32*j))
+                screen.blit(grid, (0,0)) # draw grid surface to screen
+
+            doRedraw = False
 
         # flip the display
         pygame.display.flip()
 
         # handle pygame events
         for event in pygame.event.get():
+
+            doRedraw = True
+
             # handle pygame window closed
             if event.type == pygame.QUIT:
                 running = False
