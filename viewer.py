@@ -263,14 +263,15 @@ def main():
         # handle pygame events
         for event in pygame.event.get():
 
-            doRedraw = True
-
             # handle pygame window closed
             if event.type == pygame.QUIT:
                 running = False
             
             # handle keyboard input
             if event.type == pygame.KEYDOWN:
+
+                doRedraw = True
+
                 (oldCol, oldRow, oldEpisode) = (col, row, episode)
 
                 # ARROW KEYS: move between maps
