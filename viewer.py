@@ -1,6 +1,7 @@
 # Cartoon Cartoon Summer Resort Map Viewer
 # by TheOnlyZac
 
+from math import ceil
 import sys
 import os
 import json
@@ -119,7 +120,7 @@ def convertWhiteToAlpha(surface):
     del arr
 
 
-def drawTiles(screen, tileData, episode, renderInvis=False):
+def drawTiles(screen, tileData, episode, renderInvis=False, renderSprites=True, renderTiles=True):
     # clear screen
     bgcolor = (255, 255, 255) # white
     screen.fill(bgcolor)
@@ -152,21 +153,27 @@ def drawTiles(screen, tileData, episode, renderInvis=False):
             if sprite == None:
                 rect = (0, 0, tileWidth, tileHeight)
                 color = (255, 32, 32, 255) # red
-                pygame.draw.rect(spriteSurface, color, rect)
+                if renderSprites:
+                    pygame.draw.rect(spriteSurface, color, rect)
                 screen.blit(spriteSurface, (16*x, 16*y))
                 continue
-            
+
             # draw sprite as tile
-            if "tile" in tile["#member"] or "Tile" in tile["#member"]:
-                for i in list(range(round(tileWidth/32))):
-                    for j in list(range(round(tileHeight/32))):
+            if "tile" in tile["#member"].lower():
+                # width / 32 needs to be ceil'd rather than rounded.
+                # Python rounds 2.5 down to 2, which would cause missing tiles.
+                for i in list(range(ceil(tileWidth/32))):
+                    for j in list(range(ceil(tileHeight/32))):
+                        if renderTiles:
                             spriteSurface.blit(sprite, (i*32, j*32))
                 convertWhiteToAlpha(spriteSurface)
-                screen.blit(spriteSurface, (16*x, 16*y))
+                screen.blit(spriteSurface, (x * 16, y * 16))
                 continue
             
             # draw sprite as block
-            spriteSurface.blit(sprite, (0, 0))
+            if renderSprites:
+                spriteSurface.blit(sprite, (0, 0))
+
             convertWhiteToAlpha(spriteSurface)
 
             """
@@ -246,6 +253,8 @@ def main():
 
     grid = pygame.Surface((screenWidth, screenHeight), pygame.SRCALPHA) # create grid surface with opacity
     showGrid = False
+    showSprites = True
+    showTiles = True
 
     pygame.mixer.init()
     snapSound = pygame.mixer.Sound("resources/snap.ogg")
@@ -265,7 +274,7 @@ def main():
         if doRedraw:
             # clear screen and render the current tileData
             screen.fill(bgcolor)
-            drawTiles(screen, tileData, episode, showInvis)
+            drawTiles(screen, tileData, episode, showInvis, showSprites, showTiles)
 
             # draw grid over the screen if showGrid is true
             if showGrid:
@@ -321,6 +330,14 @@ def main():
                 # G: show/hide grid
                 elif event.key == pygame.K_g:
                     showGrid = not showGrid
+
+                # T: toggle tiles
+                elif event.key == pygame.K_t:
+                    showTiles = not showTiles
+
+                # S: toggle sprites
+                elif event.key == pygame.K_s:
+                    showSprites = not showSprites
 
                 # C: capture snapshot of current map
                 elif event.key == pygame.K_c:
