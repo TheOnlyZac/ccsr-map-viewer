@@ -1,5 +1,6 @@
 # Cartoon Cartoon Summer Resort Map Viewer
 import sys, os, json, re
+from math import ceil
 try:
     os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
     import pygame
@@ -120,7 +121,7 @@ def convertWhiteToAlpha(surface):
     del arr
 
 
-def drawTiles(screen, tileData, episode, renderInvis=False):
+def drawTiles(screen, tileData, episode, renderInvis=False, renderSprites=True, renderTiles=True):
     """
         Draws the given tile data on the given screen using sprites
         from the given episode.
@@ -133,6 +134,7 @@ def drawTiles(screen, tileData, episode, renderInvis=False):
     for tile in tileData:
         if not "#location" in tile:
             continue
+
         (x, y, tileWidth, tileHeight) = (tile["#location"][0], tile["#location"][1],
                                         tile["#width"], tile["#height"])
         (shiftX, shiftY) = (tile["#WSHIFT"], tile["#HSHIFT"])
@@ -148,9 +150,10 @@ def drawTiles(screen, tileData, episode, renderInvis=False):
         spriteSurface = pygame.Surface((tileWidth, tileHeight), pygame.SRCALPHA)
 
         sprite = None
-        try:
+        try:            
             # load sprite image
             spriteMember = tile["#member"]
+            
             if "Tile" in spriteMember:
                 tileName = spriteMember.split('.x')[0]
                 sprite = pygame.image.load('ccsr/{}/map.tiles/{}.png'.format(episode, tileName))
@@ -158,6 +161,7 @@ def drawTiles(screen, tileData, episode, renderInvis=False):
             # there is probably better way to do this than checking both folders
             block = 'ccsr/{}/map.visuals/{}.png'.format(episode, spriteMember)
             char = 'ccsr/{}/character.visuals/{}.png'.format(episode, spriteMember)
+
             if os.path.exists(block):
                 sprite = pygame.image.load(block)
             elif os.path.exists(char):
@@ -169,23 +173,28 @@ def drawTiles(screen, tileData, episode, renderInvis=False):
         if sprite == None:
             rect = (0, 0, tileWidth, tileHeight)
             color = (255, 32, 32, 255) # red
-            pygame.draw.rect(spriteSurface, color, rect)
+            if renderSprites:
+                pygame.draw.rect(spriteSurface, color, rect)
             screen.blit(spriteSurface, (16*x, 16*y))
             continue
-        
-        # draw sprite
-        if "tile" in tile["#member"] or "Tile" in tile["#member"]:
-            # draw sprite as tile
-            for i in list(range(round(tileWidth/32))):
-                for j in list(range(round(tileHeight/32))):
+
+        # draw sprite as tile
+        if "tile" in tile["#member"].lower():
+            # width / 32 needs to be ceil'd rather than rounded.
+            # Python rounds 2.5 down to 2, which would cause missing tiles.
+            for i in list(range(ceil(tileWidth/32))):
+                for j in list(range(ceil(tileHeight/32))):
+                    if renderTiles:
                         spriteSurface.blit(sprite, (i*32, j*32))
             convertWhiteToAlpha(spriteSurface)
-            screen.blit(spriteSurface, (16*x, 16*y))
+            screen.blit(spriteSurface, (x * 16, y * 16))
             continue
-        else:
-            # draw sprite as block
+        
+        # draw sprite as block
+        if renderSprites:
             spriteSurface.blit(sprite, (0, 0))
-            convertWhiteToAlpha(spriteSurface)
+
+        convertWhiteToAlpha(spriteSurface)
 
         """
             Macromedia Director has something called a Registration Point
@@ -262,6 +271,8 @@ def main():
 
     grid = pygame.Surface((screenWidth, screenHeight), pygame.SRCALPHA) # create grid surface with opacity
     showGrid = False
+    showSprites = True
+    showTiles = True
 
     pygame.mixer.init()
     snapSound = pygame.mixer.Sound("ccsr/1/sound/grab.wav")
@@ -280,7 +291,7 @@ def main():
         if doRedraw:
             # clear screen and render the current tileData
             screen.fill(bgcolor)
-            drawTiles(screen, tileData, episode, showInvis)
+            drawTiles(screen, tileData, episode, showInvis, showSprites, showTiles)
 
             # draw grid over the screen if showGrid is true
             if showGrid:
@@ -336,6 +347,14 @@ def main():
                 # G: show/hide grid
                 elif event.key == pygame.K_g:
                     showGrid = not showGrid
+
+                # T: toggle tiles
+                elif event.key == pygame.K_t:
+                    showTiles = not showTiles
+
+                # S: toggle sprites
+                elif event.key == pygame.K_s:
+                    showSprites = not showSprites
 
                 # C: capture snapshot of current map
                 elif event.key == pygame.K_c:
