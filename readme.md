@@ -5,8 +5,16 @@
 This is a work-in-progress map viewer for the Cartoon Cartoon Summer Resort series. The games were made with Adobe Shockwave and published on Cartoon Network's website in the summer of 2000.
 
 ## Instructions
+### Prerequisites
 To run the script, you will need Python 3.8 or higher (available [here](https://www.python.org/downloads/)) and pygame (install with <code>pip install pygame</code>).
 
+### Getting starte3
+1. Clone the repo
+**<code>git clone https://github.com/TheOnlyZac/ccsr-map-viewer</code>
+2. Init submodules
+**<code>git submodule init</code>
+
+### Controls
 Start the map viewer by running the script <code>viewer.py</code>
 * Use the **arrow keys** to move between maps.
 * Use **1**, **2**, **3**, and **4** to change episode.
