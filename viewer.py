@@ -1,9 +1,5 @@
 # Cartoon Cartoon Summer Resort Map Viewer
-
-import sys
-import os
-import json
-import re
+import sys, os, json, re
 try:
     os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
     import pygame
@@ -14,16 +10,21 @@ except:
 (screenWidth, screenHeight) = (416, 320)
 bgcolor = (200, 200, 200)
 
-# Opens map data file and converts the map data to json
-def processMapData(data):
+def parseMapDataToJson(data):
+    """
+        The map data is in an unusual json-like format, probably 
+        optimized for LingoScript. It uses square brackets [] for both 
+        dictionaries and 1-dimensional arrays. This function converts it
+        to valid JSON so it is easier to work with.
+    """
     # remove all newlines from file
     data = data.replace("\n", "")
 
-    # swap []s and {}s
+    # replace []s with {}s
     data = data.replace('[', '{')
     data = data.replace(']', '}')
 
-    # iterate over data to convert {}s back to []s for list attributes
+    # iterate over the map data and to convert {}s back to []s in the specific case of list
     s = ""
     depth = 0
     inList = False
@@ -70,7 +71,7 @@ def processMapData(data):
         if not inString:
             json = json.strip()
     
-    # use regex to add quotes around all necessary fields (all of which are prefixed with #)
+    # use regex to add quotes around all necessary fields (all of which happen to be prefixed with #)
     json = re.sub(r'([#]{1}\w+)', r'"\1"', json)
 
     return json
@@ -110,15 +111,20 @@ def jsonLoadTileData(data):
     return tiles
 
 
-# Replace white pixels with transparent ones on the given surface
 def convertWhiteToAlpha(surface):
+    """
+        Replaces white pixels on the given surface with transparency.
+    """
     arr = pygame.PixelArray(surface)
     arr.replace((255, 255, 255), (255, 255, 255, 0))
     del arr
 
 
-# Draw the given tile data on the given screen
 def drawTiles(screen, tileData, episode, renderInvis=False):
+    """
+        Draws the given tile data on the given screen using sprites
+        from the given episode.
+    """
     # clear screen
     bgcolor = (255, 255, 255) # white
     screen.fill(bgcolor)
@@ -202,11 +208,13 @@ def drawTiles(screen, tileData, episode, renderInvis=False):
         screen.blit(spriteSurface, (newX, newY))
 
 
-# open and read map data file
 def openMapFile(filename):
+    """
+        Opens the map file, parses it to JSON and returns the tile data array.
+    """
     with open(filename, "r") as file:
-        processedFile = processMapData(file.read())
-        tileStrings = separateTileStrings(processedFile)
+        parsedJson = parseMapDataToJson(file.read())
+        tileStrings = separateTileStrings(parsedJson)
         tileData = jsonLoadTileData(tileStrings)
     return tileData
 
@@ -267,7 +275,6 @@ def main():
     clock = pygame.time.Clock()
 
     while running:
-
         clock.tick(60)
 
         if doRedraw:
@@ -303,16 +310,16 @@ def main():
                 (oldCol, oldRow, oldEpisode) = (col, row, episode)
 
                 # ARROW KEYS: move between maps
-                # go left
+                # left
                 if event.key == pygame.K_LEFT:
                     col -= 1
-                # go right
+                # right
                 elif event.key == pygame.K_RIGHT:
                     col += 1
-                # go up
+                # up
                 elif event.key == pygame.K_UP:
                     row -= 1
-                # go down
+                # down
                 elif event.key == pygame.K_DOWN:
                     row += 1
                 
