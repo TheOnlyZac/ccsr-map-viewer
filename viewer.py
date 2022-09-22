@@ -129,6 +129,7 @@ def drawTiles(screen, tileData, episode, renderInvis=False):
         try:
             (x, y, tileWidth, tileHeight) = (tile["#location"][0], tile["#location"][1],
                                             tile["#width"], tile["#height"])
+            (shiftX, shiftY) = (tile["#WSHIFT"], tile["#HSHIFT"])
 
             # skip tile if it is invisible when the game starts
             if (not renderInvis) and (tile["#data"]["#item"]["#visi"]["#visiObj"] != "" or tile["#data"]["#item"]["#visi"]["#visiAct"] != ""):
@@ -167,7 +168,26 @@ def drawTiles(screen, tileData, episode, renderInvis=False):
             # draw sprite as block
             spriteSurface.blit(sprite, (0, 0))
             convertWhiteToAlpha(spriteSurface)
-            screen.blit(spriteSurface, (16*x - 16, 16*y - 16))
+
+            """
+                Macromedia Director has something called a Registration Point
+                This is the 0,0 location in each sprite's individual internal coordinate system.
+
+                In CCSR (possibly a default setting in Director),
+                the registration point is always set to the center of the sprite,
+                not the top left.
+
+                Therefore, we must normalize the coordinate system,
+                and put the anchor point at the top left instead of the sprite's center.
+                This means we have to simply subtract W/2 from X and H/2 from Y
+            """
+            anchorXDist = tileWidth // 2
+            anchorYDist = tileHeight // 2
+
+            newX = (x * 16) + shiftX - anchorXDist
+            newY = (y * 16) + shiftY - anchorYDist
+
+            screen.blit(spriteSurface, (newX, newY))
             
         except:
             continue
