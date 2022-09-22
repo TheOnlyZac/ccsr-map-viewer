@@ -10,9 +10,9 @@ To run the script, you will need Python 3.8 or higher (available [here](https://
 
 ### Getting starte3
 1. Clone the repo
-**<code>git clone https://github.com/TheOnlyZac/ccsr-map-viewer</code>
+   * <code>git clone https://github.com/TheOnlyZac/ccsr-map-viewer</code>
 2. Init submodules
-**<code>git submodule init</code>
+   * <code>git submodule init</code>
 
 ### Controls
 Start the map viewer by running the script <code>viewer.py</code>
