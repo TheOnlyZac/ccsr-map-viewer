@@ -11,7 +11,8 @@ Start the map viewer by running the script <code>viewer.py</code>
 * Use the **arrow keys** to move between maps.
 * Use **1**, **2**, **3**, and **4** to change episode.
 * Press **G** to show/hide the tile grid.
-* Press **T** to show/hide sprites.
+* Press **T** to show/hide tiles.
+* Press **S** to show/hide sprites.
 * Press **V** to show/hide invisible objects.
 * Press **C** to take a snapshot of the current map.
 

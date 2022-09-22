@@ -120,7 +120,7 @@ def convertWhiteToAlpha(surface):
     del arr
 
 
-def drawTiles(screen, tileData, episode, renderInvis=False, renderSprites=True):
+def drawTiles(screen, tileData, episode, renderInvis=False, renderSprites=True, renderTiles=True):
     # clear screen
     bgcolor = (255, 255, 255) # white
     screen.fill(bgcolor)
@@ -153,7 +153,8 @@ def drawTiles(screen, tileData, episode, renderInvis=False, renderSprites=True):
             if sprite == None:
                 rect = (0, 0, tileWidth, tileHeight)
                 color = (255, 32, 32, 255) # red
-                pygame.draw.rect(spriteSurface, color, rect)
+                if renderSprites:
+                    pygame.draw.rect(spriteSurface, color, rect)
                 screen.blit(spriteSurface, (16*x, 16*y))
                 continue
 
@@ -163,6 +164,7 @@ def drawTiles(screen, tileData, episode, renderInvis=False, renderSprites=True):
                 # Python rounds 2.5 down to 2, which would cause missing tiles.
                 for i in list(range(ceil(tileWidth/32))):
                     for j in list(range(ceil(tileHeight/32))):
+                        if renderTiles:
                             spriteSurface.blit(sprite, (i*32, j*32))
                 convertWhiteToAlpha(spriteSurface)
                 screen.blit(spriteSurface, (x * 16, y * 16))
@@ -252,6 +254,7 @@ def main():
     grid = pygame.Surface((screenWidth, screenHeight), pygame.SRCALPHA) # create grid surface with opacity
     showGrid = False
     showSprites = True
+    showTiles = True
 
     pygame.mixer.init()
     snapSound = pygame.mixer.Sound("resources/snap.ogg")
@@ -271,7 +274,7 @@ def main():
         if doRedraw:
             # clear screen and render the current tileData
             screen.fill(bgcolor)
-            drawTiles(screen, tileData, episode, showInvis, showSprites)
+            drawTiles(screen, tileData, episode, showInvis, showSprites, showTiles)
 
             # draw grid over the screen if showGrid is true
             if showGrid:
@@ -328,8 +331,12 @@ def main():
                 elif event.key == pygame.K_g:
                     showGrid = not showGrid
 
-                # T: toggle sprites
+                # T: toggle tiles
                 elif event.key == pygame.K_t:
+                    showTiles = not showTiles
+
+                # S: toggle sprites
+                elif event.key == pygame.K_s:
                     showSprites = not showSprites
 
                 # C: capture snapshot of current map
