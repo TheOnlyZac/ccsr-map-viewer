@@ -119,7 +119,7 @@ def convertWhiteToAlpha(surface):
     del arr
 
 
-def drawTiles(screen, tileData, episode, renderInvis=False):
+def drawTiles(screen, tileData, episode, renderInvis=False, renderSprites=True):
     # clear screen
     bgcolor = (255, 255, 255) # white
     screen.fill(bgcolor)
@@ -166,7 +166,9 @@ def drawTiles(screen, tileData, episode, renderInvis=False):
                 continue
             
             # draw sprite as block
-            spriteSurface.blit(sprite, (0, 0))
+            if renderSprites:
+                spriteSurface.blit(sprite, (0, 0))
+
             convertWhiteToAlpha(spriteSurface)
 
             """
@@ -246,6 +248,7 @@ def main():
 
     grid = pygame.Surface((screenWidth, screenHeight), pygame.SRCALPHA) # create grid surface with opacity
     showGrid = False
+    showSprites = True
 
     pygame.mixer.init()
     snapSound = pygame.mixer.Sound("resources/snap.ogg")
@@ -265,7 +268,7 @@ def main():
         if doRedraw:
             # clear screen and render the current tileData
             screen.fill(bgcolor)
-            drawTiles(screen, tileData, episode, showInvis)
+            drawTiles(screen, tileData, episode, showInvis, showSprites)
 
             # draw grid over the screen if showGrid is true
             if showGrid:
@@ -321,6 +324,10 @@ def main():
                 # G: show/hide grid
                 elif event.key == pygame.K_g:
                     showGrid = not showGrid
+
+                # T: toggle sprites
+                elif event.key == pygame.K_t:
+                    showSprites = not showSprites
 
                 # C: capture snapshot of current map
                 elif event.key == pygame.K_c:
