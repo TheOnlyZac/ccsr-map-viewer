@@ -2,17 +2,12 @@
 
 ![A screenshot of the map viewer](./screenshot.png)
 
-This is a work-in-progress map viewer for the Cartoon Cartoon Summer Resort series. The games were made with Adobe Shockwave and published on Cartoon Network's website in the summer of 2000.
+This is a map viewer for the Cartoon Cartoon Summer Resort games. The series was developed by Funny Garbage and published on Cartoon Network's website in the summer of 2000.
 
 ## Instructions
-### Prerequisites
 To run the script, you will need Python 3.8 or higher (available [here](https://www.python.org/downloads/)) and pygame (install with <code>pip install pygame</code>).
 
-### Getting starte3
-1. Clone the repo
-   * <code>git clone https://github.com/TheOnlyZac/ccsr-map-viewer</code>
-2. Init submodules
-   * <code>git submodule init</code>
+First, clone the repo using <code>git clone https://github.com/TheOnlyZac/ccsr-map-viewer</code>. Then init submodules with <code>git submodule init</code>, which will load the game resources.
 
 ### Controls
 Start the map viewer by running the script <code>viewer.py</code>
