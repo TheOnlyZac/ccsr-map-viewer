@@ -1,5 +1,4 @@
 # Cartoon Cartoon Summer Resort Map Viewer
-# by TheOnlyZac
 
 import sys
 import os
@@ -193,18 +192,17 @@ def drawTiles(screen, tileData, episode, renderInvis=False):
             continue
 
 
+# open and read map data file
 def openMapFile(filename):
-    # open map data file
-    file = open(filename, "r")
-    processedFile = processMapData(file.read())
-    tileStrings = separateTileStrings(processedFile)
-    tileData = jsonLoadTileData(tileStrings)
-    file.close()
+    with open(filename, "r") as file:
+        processedFile = processMapData(file.read())
+        tileStrings = separateTileStrings(processedFile)
+        tileData = jsonLoadTileData(tileStrings)
     return tileData
 
 
 def main():
-    print("\nCartoon Cartoon Summer Resort Map Viewer\nby TheOnlyZac (v0.5.0)\n")
+    print("\nCartoon Cartoon Summer Resort Map Viewer (alpha)\n")
     argc = len(sys.argv)
     argv = sys.argv
 
