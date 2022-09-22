@@ -1,6 +1,7 @@
 # Cartoon Cartoon Summer Resort Map Viewer
 # by TheOnlyZac
 
+from math import ceil
 import sys
 import os
 import json
@@ -155,14 +156,16 @@ def drawTiles(screen, tileData, episode, renderInvis=False, renderSprites=True):
                 pygame.draw.rect(spriteSurface, color, rect)
                 screen.blit(spriteSurface, (16*x, 16*y))
                 continue
-            
+
             # draw sprite as tile
-            if "tile" in tile["#member"] or "Tile" in tile["#member"]:
-                for i in list(range(round(tileWidth/32))):
-                    for j in list(range(round(tileHeight/32))):
+            if "tile" in tile["#member"].lower():
+                # width / 32 needs to be ceil'd rather than rounded.
+                # Python rounds 2.5 down to 2, which would cause missing tiles.
+                for i in list(range(ceil(tileWidth/32))):
+                    for j in list(range(ceil(tileHeight/32))):
                             spriteSurface.blit(sprite, (i*32, j*32))
                 convertWhiteToAlpha(spriteSurface)
-                screen.blit(spriteSurface, (16*x, 16*y))
+                screen.blit(spriteSurface, (x * 16, y * 16))
                 continue
             
             # draw sprite as block
