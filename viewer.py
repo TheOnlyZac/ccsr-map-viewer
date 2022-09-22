@@ -78,7 +78,6 @@ def processMapData(data):
 
 # Reads the given map data and separate each tile into it's own string in an array
 def separateTileStrings(data):
-
     data = data[slice(1, -1)] # remove bounding {} around whole file
 
     s = ""
@@ -111,13 +110,14 @@ def jsonLoadTileData(data):
     return tiles
 
 
+# Replace white pixels with transparent ones on the given surface
 def convertWhiteToAlpha(surface):
-    # replace white pixels with transparent
     arr = pygame.PixelArray(surface)
     arr.replace((255, 255, 255), (255, 255, 255, 0))
     del arr
 
 
+# Draw the given tile data on the given screen
 def drawTiles(screen, tileData, episode, renderInvis=False):
     # clear screen
     bgcolor = (255, 255, 255) # white
@@ -125,71 +125,81 @@ def drawTiles(screen, tileData, episode, renderInvis=False):
 
     # draw each tile
     for tile in tileData:
+        if not "#location" in tile:
+            continue
+        (x, y, tileWidth, tileHeight) = (tile["#location"][0], tile["#location"][1],
+                                        tile["#width"], tile["#height"])
+        (shiftX, shiftY) = (tile["#WSHIFT"], tile["#HSHIFT"])
+
+        # skip tile if it is invisible when the game starts
+        if (not renderInvis) and (tile["#data"]["#item"]["#visi"]["#visiObj"] != "" or tile["#data"]["#item"]["#visi"]["#visiAct"] != ""):
+            continue
+
+        # skip tile if it has an invis condition and rendering invis objects
+        if (renderInvis) and (tile["#data"]["#item"]["#visi"]["#inviObj"] != "" or tile["#data"]["#item"]["#visi"]["#inviAct"] != ""):
+            continue
+
+        spriteSurface = pygame.Surface((tileWidth, tileHeight), pygame.SRCALPHA)
+
+        sprite = None
         try:
-            (x, y, tileWidth, tileHeight) = (tile["#location"][0], tile["#location"][1],
-                                            tile["#width"], tile["#height"])
-            (shiftX, shiftY) = (tile["#WSHIFT"], tile["#HSHIFT"])
+            # load sprite image
+            spriteMember = tile["#member"]
+            if "Tile" in spriteMember:
+                tileName = spriteMember.split('.x')[0]
+                sprite = pygame.image.load('ccsr/{}/map.tiles/{}.png'.format(episode, tileName))
 
-            # skip tile if it is invisible when the game starts
-            if (not renderInvis) and (tile["#data"]["#item"]["#visi"]["#visiObj"] != "" or tile["#data"]["#item"]["#visi"]["#visiAct"] != ""):
-                continue
+            # there is probably better way to do this than checking both folders
+            block = 'ccsr/{}/map.visuals/{}.png'.format(episode, spriteMember)
+            char = 'ccsr/{}/character.visuals/{}.png'.format(episode, spriteMember)
+            if os.path.exists(block):
+                sprite = pygame.image.load(block)
+            elif os.path.exists(char):
+                sprite = pygame.image.load(char)
+        except:
+            pass
 
-            # skip tile if it has an invis condition and rendering invis objects
-            if (renderInvis) and (tile["#data"]["#item"]["#visi"]["#inviObj"] != "" or tile["#data"]["#item"]["#visi"]["#inviAct"] != ""):
-                continue
-
-            spriteSurface = pygame.Surface((tileWidth, tileHeight), pygame.SRCALPHA)
-
-            sprite = None
-            try:
-                # load sprite image
-                sprite = pygame.image.load('tiles/episode{}/{}.png'.format(episode, tile["#member"]))
-            except:
-                pass
-
-            # if sprite is missing, draw red box and continue
-            if sprite == None:
-                rect = (0, 0, tileWidth, tileHeight)
-                color = (255, 32, 32, 255) # red
-                pygame.draw.rect(spriteSurface, color, rect)
-                screen.blit(spriteSurface, (16*x, 16*y))
-                continue
-            
+        # if sprite is missing, draw red box and continue
+        if sprite == None:
+            rect = (0, 0, tileWidth, tileHeight)
+            color = (255, 32, 32, 255) # red
+            pygame.draw.rect(spriteSurface, color, rect)
+            screen.blit(spriteSurface, (16*x, 16*y))
+            continue
+        
+        # draw sprite
+        if "tile" in tile["#member"] or "Tile" in tile["#member"]:
             # draw sprite as tile
-            if "tile" in tile["#member"] or "Tile" in tile["#member"]:
-                for i in list(range(round(tileWidth/32))):
-                    for j in list(range(round(tileHeight/32))):
-                            spriteSurface.blit(sprite, (i*32, j*32))
-                convertWhiteToAlpha(spriteSurface)
-                screen.blit(spriteSurface, (16*x, 16*y))
-                continue
-            
+            for i in list(range(round(tileWidth/32))):
+                for j in list(range(round(tileHeight/32))):
+                        spriteSurface.blit(sprite, (i*32, j*32))
+            convertWhiteToAlpha(spriteSurface)
+            screen.blit(spriteSurface, (16*x, 16*y))
+            continue
+        else:
             # draw sprite as block
             spriteSurface.blit(sprite, (0, 0))
             convertWhiteToAlpha(spriteSurface)
 
-            """
-                Macromedia Director has something called a Registration Point
-                This is the 0,0 location in each sprite's individual internal coordinate system.
+        """
+            Macromedia Director has something called a Registration Point
+            This is the 0,0 location in each sprite's individual internal coordinate system.
 
-                In CCSR (possibly a default setting in Director),
-                the registration point is always set to the center of the sprite,
-                not the top left.
+            In CCSR (possibly a default setting in Director),
+            the registration point is always set to the center of the sprite,
+            not the top left.
 
-                Therefore, we must normalize the coordinate system,
-                and put the anchor point at the top left instead of the sprite's center.
-                This means we have to simply subtract W/2 from X and H/2 from Y
-            """
-            anchorXDist = tileWidth // 2
-            anchorYDist = tileHeight // 2
+            Therefore, we must normalize the coordinate system,
+            and put the anchor point at the top left instead of the sprite's center.
+            This means we have to simply subtract W/2 from X and H/2 from Y
+        """
+        anchorXDist = tileWidth // 2
+        anchorYDist = tileHeight // 2
 
-            newX = (x * 16) + shiftX - anchorXDist
-            newY = (y * 16) + shiftY - anchorYDist
+        newX = (x * 16) + shiftX - anchorXDist
+        newY = (y * 16) + shiftY - anchorYDist
 
-            screen.blit(spriteSurface, (newX, newY))
-            
-        except:
-            continue
+        screen.blit(spriteSurface, (newX, newY))
 
 
 # open and read map data file
@@ -227,7 +237,7 @@ def main():
     (col, row) = 1, 6
     
     if mode == "default":
-        mapFile = "maps/episode{}/0{}0{}.txt".format(episode, col, row)
+        mapFile = "ccsr/{}/map.data/0{}0{}.txt".format(episode, col, row)
     elif mode == "file":
         mapFile = sys.argv[1]
 
@@ -238,7 +248,7 @@ def main():
     pygame.display.set_caption("Cartoon Cartoon Summer Resort Map Viewer")
 
     icon = pygame.Surface((32, 32), pygame.SRCALPHA)
-    icon.blit(pygame.image.load("tiles/gus.png"), (0, 0))
+    icon.blit(pygame.image.load("ccsr/1/character.visuals/player.normal.right.1.png"), (0, 0))
     convertWhiteToAlpha(icon)
     pygame.display.set_icon(icon)
 
@@ -246,10 +256,10 @@ def main():
     showGrid = False
 
     pygame.mixer.init()
-    snapSound = pygame.mixer.Sound("resources/snap.ogg")
-    discoverSound = pygame.mixer.Sound("resources/discover.ogg")
-    bumpSound = pygame.mixer.Sound("resources/bump.ogg")
-    chimesSound = pygame.mixer.Sound("resources/chimes.ogg")
+    snapSound = pygame.mixer.Sound("ccsr/1/sound/grab.wav")
+    discoverSound = pygame.mixer.Sound("ccsr/1/sound/discover.wav")
+    bumpSound = pygame.mixer.Sound("ccsr/1/sound/bump.wav")
+    chimesSound = pygame.mixer.Sound("ccsr/1/sound/chimes.wav")
 
     # Main render loop
     running = True
@@ -348,7 +358,7 @@ def main():
 
                 # open new map data file if the col or row changed
                 if mode == "default" and (col, row, episode) != (oldCol, oldRow, oldEpisode):
-                    newMapFile = "maps/episode{}/0{}0{}.txt".format(episode, col, row)
+                    newMapFile = "ccsr/{}/map.data/0{}0{}.txt".format(episode, col, row)
                     if os.path.exists(newMapFile):
                         # play chimes sound if episode changed
                         if episode != oldEpisode:
